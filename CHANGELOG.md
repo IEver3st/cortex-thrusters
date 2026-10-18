@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 (2026-10-18)
+
+### Changed
+- Removing a kit takes 10 seconds next to a vehicle that is standing still, like fitting (`Config.removeSeconds`). Anyone next to the vehicle can do it with `/thrusters remove`.
+- `thrusters_plate` is a restricted command: the server console, or admins allowed to run commands.
+
+### Removed
+- `Config.access` and `Config.adminAce`: Thrusters no longer has its own ACE permissions. Use `Config.requireItem` to limit who can fit a kit.
+
 ## 1.0.0 (2026-10-17)
 
 ### Added

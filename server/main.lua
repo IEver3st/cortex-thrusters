@@ -69,13 +69,6 @@ local function near(src, vehicle)
     return #(GetEntityCoords(ped) - GetEntityCoords(vehicle)) <= INSTALL_REACH
 end
 
-local function allowed(src, rule)
-    if not rule or not rule.ace then return true end
-    return IsPlayerAceAllowed(src, rule.ace)
-end
-
-local function admin(src) return src == 0 or IsPlayerAceAllowed(src, C.adminAce) end
-
 local function precheck(src, payload)
     local vehicle = type(payload) == 'table' and vehicleFrom(payload.netId)
     if not vehicle then return nil, 'VEHICLE' end
@@ -88,17 +81,31 @@ local function precheck(src, payload)
         local has = B.has(src, C.item)
         if has == nil then return nil, 'UNAVAILABLE' end
         if not has then return nil, 'NO_ITEM' end
-    elseif not allowed(src, C.access) then
-        return nil, 'NOT_ALLOWED'
     end
     return vehicle
+end
+
+local function removable(src, payload)
+    local vehicle = type(payload) == 'table' and vehicleFrom(payload.netId)
+    if not vehicle then return nil, 'VEHICLE' end
+    if not near(src, vehicle) then return nil, 'TOO_FAR' end
+    if not fitted(vehicle) then return nil, 'NOT_FITTED' end
+    if #GetEntityVelocity(vehicle) > MAX_FIT_SPEED then return nil, 'MOVING' end
+    return vehicle
+end
+
+-- The work has to have taken (most of) its time since it started.
+local function worked(src, vehicle, job, seconds)
+    local work = pending[src]
+    pending[src] = nil
+    return work and work.job == job and work.vehicle == vehicle and GetGameTimer() - work.at >= seconds * 800
 end
 
 lib.callback.register(RESOURCE .. ':canInstall', function(src, payload)
     if limited(src, 'check', 500) then return fail('RATE_LIMITED') end
     local vehicle, code = precheck(src, payload)
     if not vehicle then return fail(code) end
-    pending[src] = { vehicle = vehicle, at = GetGameTimer() }
+    pending[src] = { job = 'install', vehicle = vehicle, at = GetGameTimer() }
     return ok()
 end)
 
@@ -106,10 +113,7 @@ lib.callback.register(RESOURCE .. ':install', function(src, payload)
     if limited(src, 'install', 1000) then return fail('RATE_LIMITED') end
     local vehicle, code = precheck(src, payload)
     if not vehicle then return fail(code) end
-    -- The fitting has to have taken (most of) its time since canInstall.
-    local work = pending[src]
-    pending[src] = nil
-    if not work or work.vehicle ~= vehicle or GetGameTimer() - work.at < C.installSeconds * 800 then return fail('NOT_ALLOWED') end
+    if not worked(src, vehicle, 'install', C.installSeconds) then return fail('NOT_ALLOWED') end
     if C.requireItem then
         local taken = B.take(src, C.item)
         if taken == nil then
@@ -124,13 +128,19 @@ lib.callback.register(RESOURCE .. ':install', function(src, payload)
     return ok()
 end)
 
+lib.callback.register(RESOURCE .. ':canRemove', function(src, payload)
+    if limited(src, 'check', 500) then return fail('RATE_LIMITED') end
+    local vehicle, code = removable(src, payload)
+    if not vehicle then return fail(code) end
+    pending[src] = { job = 'remove', vehicle = vehicle, at = GetGameTimer() }
+    return ok()
+end)
+
 lib.callback.register(RESOURCE .. ':remove', function(src, payload)
     if limited(src, 'remove', 1000) then return fail('RATE_LIMITED') end
-    if not admin(src) then return fail('NOT_ALLOWED') end
-    local vehicle = type(payload) == 'table' and vehicleFrom(payload.netId)
-    if not vehicle then return fail('VEHICLE') end
-    if not near(src, vehicle) then return fail('TOO_FAR') end
-    if not fitted(vehicle) then return fail('NOT_FITTED') end
+    local vehicle, code = removable(src, payload)
+    if not vehicle then return fail(code) end
+    if not worked(src, vehicle, 'remove', C.removeSeconds) then return fail('NOT_ALLOWED') end
     setFitted(vehicle, false)
     remember(vehicle, false)
     log(('player %d removed the kit from %s'):format(src, GetVehicleNumberPlateText(vehicle) or '?'))
@@ -206,11 +216,11 @@ AddEventHandler('onResourceStop', function(name)
     end
 end)
 
--- Staff and other resources -------------------------------------------------------
+-- Console and other resources -----------------------------------------------------
 
 -- thrusters_plate add|remove <PLATE>: remember or forget a kit by plate.
-RegisterCommand('thrusters_plate', function(src, args)
-    if not admin(src) then return end
+-- Restricted: the console, or anyone the server lets run commands.
+RegisterCommand('thrusters_plate', function(_, args)
     local action, plate = args[1], table.concat(args, ' ', 2):upper()
     if (action ~= 'add' and action ~= 'remove') or plate == '' or #plate > 16 then
         print('usage: thrusters_plate add|remove <PLATE>')
@@ -218,7 +228,7 @@ RegisterCommand('thrusters_plate', function(src, args)
     end
     if action == 'add' then SetResourceKvpInt('plate:' .. plate, 1) else DeleteResourceKvp('plate:' .. plate) end
     print(('[%s] kit %s for plate %s'):format(RESOURCE, action == 'add' and 'remembered' or 'forgotten', plate))
-end, false)
+end, true)
 
 -- exports['cortex-thrusters']:setFitted(vehicle, true|false) for garages and admin menus.
 exports('setFitted', function(vehicle, on)

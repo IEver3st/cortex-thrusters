@@ -11,6 +11,7 @@
   "legend.spin": "Spin",
   "legend.padTricks": "TRIGGERS STICK",
   "progress.install": "Fitting thruster kit",
+  "progress.remove": "Removing thruster kit",
   "notify.fitted": "Thruster kit fitted. Get in the driver's seat to use it.",
   "notify.removed": "Thruster kit removed.",
   "notify.noVehicle": "Stand next to a vehicle or sit in one.",
@@ -40,8 +41,10 @@
   "settings.hud.help": "The cold gas gauge above the speedometer while you drive a fitted vehicle.",
   "notify.hudUsage": "Move the gauge: /thrusters hud <right> <bottom> (default 40 200), or /thrusters hud reset.",
   "notify.gripCooling": "Grip fans cooling. Ready in {seconds} s.",
-  "notify.moving": "Stop the vehicle before fitting the kit.",
+  "notify.moving": "Stop the vehicle first.",
   "notify.interrupted": "Fitting stopped: the vehicle moved.",
+  "notify.removeCancelled": "Removal cancelled.",
+  "notify.removeInterrupted": "Removal stopped: the vehicle moved.",
   "settings.landing": "Landing assist",
   "settings.landing.help": "After a jump the car levels itself and the lift nozzles soften the touchdown."
 }

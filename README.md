@@ -55,27 +55,9 @@ INSERT INTO items (name, label, weight) VALUES ('thruster_kit', 'Thruster Kit', 
 
 No item icon ships with the resource. Add your own `thruster_kit.png` to your inventory's image folder.
 
-### Access
-
-Without an item, `Config.access` decides who may fit a kit: `false` lets anyone, or name an ACE:
-
-```lua
-Config.access = { ace = 'cortex.thrusters.fit' }
-```
-
-```cfg
-add_ace group.admin cortex.thrusters.fit allow
-```
-
-Staff remove kits and manage remembered plates with the ACE in `Config.adminAce`:
-
-```cfg
-add_ace group.admin cortex.thrusters.admin allow
-```
-
 ## Use
 
-Fitting takes 8 seconds next to a vehicle that is standing still. Moving the vehicle or walking away cancels it.
+Fitting takes 8 seconds and removing a kit takes 10, next to a vehicle that is standing still. Moving the vehicle or walking away cancels either one.
 
 Take the driver's seat of a vehicle with a kit. A controls hint (Cortex Lib, bottom right) shows your own keys for 8 seconds, and a cold gas gauge sits at the bottom right, above where the Cortex HUD speedometer goes.
 
@@ -99,8 +81,8 @@ The thrusters stop working when the vehicle is wrecked or mostly under water.
 | `/thrusters` | Fit a kit to the vehicle you sit in or stand next to |
 | `/thrusters help` | Show the controls hint |
 | `/thrusters hud <right> <bottom>` | Move the gauge, in 1080p units (default `40 200`); `/thrusters hud reset` puts it back |
-| `/thrusters remove` | Take the kit off the vehicle (staff) |
-| `thrusters_plate add\|remove <PLATE>` | Remember or forget a kit by plate (server console or staff) |
+| `/thrusters remove` | Take the kit off the vehicle you sit in or stand next to |
+| `thrusters_plate add\|remove <PLATE>` | Remember or forget a kit by plate (server console, or admins allowed to run commands) |
 
 ### Player settings
 
@@ -114,7 +96,7 @@ Under Cortex settings > Thrusters, each player chooses:
 
 Everything is in `config.lua`, with a comment on every value:
 
-- `Config.framework`, `Config.item`, `Config.requireItem`, `Config.command`, `Config.access`, `Config.adminAce`: fitting, and who may.
+- `Config.framework`, `Config.item`, `Config.requireItem`, `Config.command`, `Config.installSeconds`, `Config.removeSeconds`: fitting, removing and the command.
 - `Config.persist`: remember fitted kits by plate on the server, so a garage vehicle comes back with its kit. `false` keeps a kit only as long as the vehicle exists.
 - `Config.blockedClasses`, `Config.types`, `Config.blockedModels`: which vehicles take a kit. By default cars, motorbikes, quads and amphibious cars do; bicycles, boats, helicopters, planes and trains never do.
 - `Config.layouts`: nozzles are placed automatically from each model's size, wheels and exhausts. Correct them per model here.

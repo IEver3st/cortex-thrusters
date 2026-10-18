@@ -4,9 +4,8 @@ Config.Locale = 'en' -- locales/<code>.json
 
 -- Installing -----------------------------------------------------------------
 
--- 'standalone' (default): no framework and no item; `/thrusters` fits the kit
--- and Config.access decides who may. Nothing to add to your inventory, so the
--- resource starts with `ensure cortex-thrusters`, no server restart.
+-- 'standalone' (default): no framework and no item; anyone fits the kit with
+-- `/thrusters`. Nothing to add to your inventory, so the resource starts with `ensure cortex-thrusters`, no server restart.
 -- 'auto' detects Qbox, QBCore or ESX; or name one: 'qbx', 'qb', 'esx'.
 -- A framework makes the kit item usable (new items need a full server restart).
 Config.framework = 'standalone'
@@ -19,14 +18,11 @@ Config.item = 'thruster_kit'
 Config.requireItem = false
 
 -- `/thrusters` fits the kit to the vehicle you sit in or stand next to.
--- `/thrusters remove` (staff) takes it off. Set false to disable the command.
+-- `/thrusters remove` takes it off again. Set false to disable the command.
 Config.command = 'thrusters'
--- Who may install without an item: false = anyone, or { ace = 'permission' }.
-Config.access = false
--- Staff: removing kits and `thrusters_plate` in the server console.
-Config.adminAce = 'cortex.thrusters.admin'
 
 Config.installSeconds = 8
+Config.removeSeconds = 10
 Config.installAnim = { dict = 'mini@repair', clip = 'fixing_a_ped' }
 
 -- Remember fitted kits by number plate on the server, so a garage vehicle

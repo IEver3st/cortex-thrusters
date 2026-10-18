@@ -3,7 +3,7 @@
 local checks = 0
 local function ok(cond, what) assert(cond, what); checks = checks + 1 end
 
-local W = { clock = 0, kvp = {}, states = {}, aces = {}, resources = {}, peds = { [1] = 101, [2] = 102 }, seat = {}, logs = {} }
+local W = { clock = 0, kvp = {}, states = {}, resources = {}, peds = { [1] = 101, [2] = 102 }, seat = {}, logs = {} }
 local vehicles = {
     [500] = { type = 'automobile', model = 7, plate = ' TEST 01 ', coords = { x = 0, y = 0, z = 0 } },
     [501] = { type = 'heli', model = 8, plate = 'HELI', coords = { x = 1, y = 0, z = 0 } },
@@ -25,7 +25,6 @@ function GetPlayerPed(src) return W.peds[src] or 0 end
 function GetEntityCoords(e) return vec(vehicles[e] and vehicles[e].coords or W.pedCoords[e]) end
 function GetEntityVelocity(e) local v = vehicles[e].velocity or { x = 0, y = 0, z = 0 }; return setmetatable({ x = v.x, y = v.y, z = v.z }, { __len = function(t) return math.sqrt(t.x ^ 2 + t.y ^ 2 + t.z ^ 2) end }) end
 function GetPedInVehicleSeat(e, seat) return W.seat[e] or 0 end
-function IsPlayerAceAllowed(src, ace) return W.aces[src .. ':' .. ace] == true end
 function GetResourceKvpInt(k) return W.kvp[k] or 0 end
 function SetResourceKvpInt(k, v) W.kvp[k] = v end
 function DeleteResourceKvp(k) W.kvp[k] = nil end
@@ -105,19 +104,30 @@ W.clock = W.clock + 2000
 fire('cortex-thrusters:server:check', 1, 500)
 ok(W.states[500].cxThrusters == true, 'kit restored from plate')
 
--- Removal is staff only.
+-- Anyone in reach takes a kit off, once the removal work has taken its time.
+local canRemove = callbacks['cortex-thrusters:canRemove']
 W.clock = W.clock + 2000
-ok(remove(1, { netId = 500 }).error.code == 'NOT_ALLOWED', 'players cannot remove')
-W.aces['1:cortex.thrusters.admin'] = true
+ok(canRemove(2, { netId = 500 }).error.code == 'TOO_FAR', 'out of reach cannot remove')
+vehicles[500].velocity = { x = 0, y = 4, z = 0 }
+ok(canRemove(1, { netId = 500 }).error.code == 'MOVING', 'a moving vehicle is not stripped')
+vehicles[500].velocity = nil
 W.clock = W.clock + 2000
-ok(remove(1, { netId = 500 }).ok, 'staff removes')
+ok(remove(1, { netId = 500 }).error.code == 'NOT_ALLOWED', 'removing without starting the work refused')
+W.clock = W.clock + 2000
+ok(canRemove(1, { netId = 500 }).ok, 'player may start removing')
+W.clock = W.clock + Config.removeSeconds * 500
+ok(remove(1, { netId = 500 }).error.code == 'NOT_ALLOWED', 'removing faster than the work time refused')
+ok(W.states[500].cxThrusters == true, 'kit still on')
+W.clock = W.clock + 2000
+ok(canRemove(1, { netId = 500 }).ok, 'start again')
+W.clock = W.clock + Config.removeSeconds * 1000
+ok(remove(1, { netId = 500 }).ok, 'removed after the work time')
 ok(W.states[500].cxThrusters == nil and W.kvp['plate:TEST 01'] == nil, 'state and plate cleared')
-
--- An ACE gate works in standalone.
-Config.access = { ace = 'cortex.thrusters.install' }
 W.clock = W.clock + 2000
-ok(can(1, { netId = 500 }).error.code == 'NOT_ALLOWED', 'no ace, no fitting')
-W.aces['1:cortex.thrusters.install'] = true
-W.clock = W.clock + 2000
-ok(can(1, { netId = 500 }).ok, 'ace holder may fit')
+ok(canRemove(1, { netId = 500 }).error.code == 'NOT_FITTED', 'nothing left to remove')
+W.clock = W.clock + 1000
+ok(can(1, { netId = 500 }).ok, 'the vehicle takes a kit again')
+exported.setFitted(500, true) -- someone else fits it meanwhile
+W.clock = W.clock + Config.removeSeconds * 1000
+ok(remove(1, { netId = 500 }).error.code == 'NOT_ALLOWED', 'a fitting job does not count as a removal')
 io.write(('server_spec: %d checks passed\n'):format(checks))

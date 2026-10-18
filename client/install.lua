@@ -1,5 +1,5 @@
 -- Fitting and removing the kit. The client only picks the vehicle and plays
--- the work; the server checks reach, permission and the item, then marks the
+-- the work; the server checks reach and the item, then marks the
 -- vehicle through its state bag.
 local C, F, LY = Config, ThrusterFx, ThrusterLayout
 local RESOURCE = GetCurrentResourceName()
@@ -40,7 +40,7 @@ local function target()
 end
 
 -- Driving off (or walking away) during the work is blocked; a vehicle that
--- still moves, pushed or rolling, stops the fitting.
+-- still moves, pushed or rolling, stops the fitting or removal.
 local DRIVE = { 59, 60, 63, 64, 71, 72, 76 }
 local WALK = { 21, 22, 23, 24, 25, 30, 31 }
 local MAX_SPEED, MAX_DISTANCE = 2.0, 6.0
@@ -61,7 +61,7 @@ local function hold(vehicle, inside, state)
     end)
 end
 
-local function work(vehicle, inside)
+local function work(vehicle, inside, seconds, label)
     local ped = PlayerPedId()
     local anim = C.installAnim
     local state = { running = true, moved = false }
@@ -74,7 +74,7 @@ local function work(vehicle, inside)
         while not HasAnimDictLoaded(anim.dict) and GetGameTimer() < deadline do Wait(0) end
         if HasAnimDictLoaded(anim.dict) then TaskPlayAnim(ped, anim.dict, anim.clip, 3.0, 3.0, -1, 1, 0.0, false, false, false) end
     end
-    local done = not state.moved and lib.progress({ duration = math.floor(C.installSeconds * 1000), label = L('progress.install'), canCancel = true })
+    local done = not state.moved and lib.progress({ duration = math.floor(seconds * 1000), label = L(label), canCancel = true })
     state.running = false
     if not inside and anim then
         StopAnimTask(ped, anim.dict, anim.clip, 2.0)
@@ -96,7 +96,7 @@ local function install()
     local netId = VehToNet(vehicle)
     local check = request('canInstall', { netId = netId })
     if not check.ok then working = false; failed(check); return end
-    local done, why = work(vehicle, inside)
+    local done, why = work(vehicle, inside, C.installSeconds, 'progress.install')
     if not done then
         working = false
         if why == 'moved' then notify('notify.interrupted') else notify('notify.cancelled', 'warning') end
@@ -115,9 +115,23 @@ local function install()
 end
 
 local function remove()
-    local vehicle = target()
-    if not vehicle or not NetworkGetEntityIsNetworked(vehicle) then notify('notify.noVehicle'); return end
-    local result = request('remove', { netId = VehToNet(vehicle) })
+    if working then return end
+    local vehicle, inside = target()
+    if not vehicle then notify('notify.noVehicle'); return end
+    if not NetworkGetEntityIsNetworked(vehicle) or not ThrusterClient.fitted(vehicle) then notify('notify.notFitted'); return end
+    if GetEntitySpeed(vehicle) > 1.0 then notify('notify.moving'); return end
+    working = true
+    local netId = VehToNet(vehicle)
+    local check = request('canRemove', { netId = netId })
+    if not check.ok then working = false; failed(check); return end
+    local done, why = work(vehicle, inside, C.removeSeconds, 'progress.remove')
+    if not done then
+        working = false
+        if why == 'moved' then notify('notify.removeInterrupted') else notify('notify.removeCancelled', 'warning') end
+        return
+    end
+    local result = request('remove', { netId = netId })
+    working = false
     if result.ok then notify('notify.removed', 'success') else failed(result) end
 end
 

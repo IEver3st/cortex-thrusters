@@ -6,7 +6,7 @@ use_experimental_fxv2_oal 'yes'
 name 'cortex-thrusters'
 author 'GSDMODS/CORTEX'
 description 'Cold gas thruster kit for any vehicle: lift, boost, wall grip and tricks'
-version '1.0.0'
+version '1.1.0'
 
 dependencies { 'cortex-lib', '/onesync' }
 
