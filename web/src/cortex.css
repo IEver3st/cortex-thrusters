@@ -1,0 +1,112 @@
+/* Cortex design tokens. Canonical copy; see ../CORTEX-DESIGN.md.
+   Copy this file into a new Svelte NUI as src/cortex.css and import it once
+   from main.ts. Components use these tokens and --u only. */
+
+:root {
+  /* Colour: paper, ink, one accent. The accent is the player's shared accent
+     (Cortex settings > Shared accent), written on :root by cortex-lib's
+     dynamic-ui.js; mint is only the fallback until it arrives. */
+  --paper: #f0f0e9;
+  --ink: #0f1012;
+  --accent: var(--cx-accent, #8fcbbf);
+  --accent-rgb: var(--cx-accent-rgb, 143, 203, 191);
+  --accent-deep: var(--cx-accent-deep, #2f6e62);
+  --muted: #b9bcc0;
+  --dim: #8b9096;
+  --warning: #d8ba82;
+  --error: #df918d;
+  --info: #9bbcd3;
+  --success: #9bc2ae;
+
+  /* Surfaces: only for things that open. HUD elements stay frameless. */
+  --slip: rgba(15, 16, 18, 0.88);
+  --slip-soft: rgba(15, 16, 18, 0.72);
+  --slip-deep: rgba(9, 10, 12, 0.94);
+  --wash: rgba(240, 240, 233, 0.06);
+  --rule: rgba(240, 240, 233, 0.16);
+  --rule-strong: rgba(240, 240, 233, 0.3);
+
+  /* Type */
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif; /* italic 800 caps */
+  --body: Arial, sans-serif;
+  --data: Consolas, 'Courier New', monospace;
+
+  /* Scale: 1px at 1080p, following the shorter side, with a readable floor. */
+  --u: max(0.72px, 0.0925925926vmin);
+  --r: calc(6 * var(--u));
+  --r-sm: calc(4 * var(--u));
+  --safe: calc(56 * var(--u));
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Legibility over any scene, instead of a box. */
+  --legible: 0 1px 0 #0b0c0e, 0 0 calc(18 * var(--u)) rgba(8, 9, 11, 0.7);
+
+  color: var(--paper);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The viewport is not a panel. A dark color-scheme makes Chromium paint an
+   opaque backdrop over the game inside FiveM's iframe. */
+html { color-scheme: normal; }
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+* { box-sizing: border-box; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; text-align: inherit; }
+input, textarea { user-select: text; }
+:focus { outline: none; }
+::selection { background: var(--accent); color: var(--ink); }
+
+/* Surfaces that take input opt back in while they own focus. */
+.cx-interactive { pointer-events: auto; }
+
+/* Signature pieces. */
+.cx-display {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.cx-keycap {
+  display: inline-grid;
+  place-items: center;
+  min-width: calc(22 * var(--u));
+  height: calc(22 * var(--u));
+  padding: 0 calc(5 * var(--u));
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: italic 800 calc(15 * var(--u)) / 1 var(--display);
+  text-transform: uppercase;
+  box-shadow: 0 calc(2 * var(--u)) 0 rgba(8, 12, 11, 0.45);
+}
+
+.cx-eyebrow {
+  font: 700 calc(12 * var(--u)) / 1 var(--body);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cx-legible { text-shadow: var(--legible); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

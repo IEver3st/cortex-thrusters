@@ -1,0 +1,19 @@
+# Dependencies and local build caches
+web/node_modules/
+web/.vite/
+
+# Release builds and marketing work stay local
+.release/
+marketing/
+
+# Logs, OS and editor files
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+.claude/
+.cortex/
+.env
+.env.*
