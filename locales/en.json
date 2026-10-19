@@ -1,5 +1,5 @@
 {
-  "keys.lift": "Thrusters: lift (tap to hop)",
+  "keys.lift": "Thrusters: lift (tap to hop or to right the car)",
   "keys.boost": "Thrusters: boost",
   "keys.trick": "Thrusters: trick (hold + direction)",
   "keys.grip": "Thrusters: wall grip on/off",
@@ -29,6 +29,7 @@
   "notify.locked": "Thrusters are refilling.",
   "notify.low": "Not enough cold gas.",
   "notify.trickWall": "Hop off the wall before a trick.",
+  "notify.stuck": "The thrusters couldn't right the vehicle.",
   "hud.label": "Cold gas",
   "hud.locked": "Refilling",
   "hud.grip": "Grip",
@@ -46,5 +47,5 @@
   "notify.removeCancelled": "Removal cancelled.",
   "notify.removeInterrupted": "Removal stopped: the vehicle moved.",
   "settings.landing": "Landing assist",
-  "settings.landing.help": "After a jump the car levels itself and the lift nozzles soften the touchdown."
+  "settings.landing.help": "In the air the thrusters steady the car, level it to the ground under all four wheels and soften the touchdown."
 }

@@ -23,5 +23,9 @@
 .meter.locked b { background: var(--error); }
 /* Where the tank unlocks again. */
 .meter em { position: absolute; top: calc(-3 * var(--u)); bottom: calc(-3 * var(--u)); width: calc(3 * var(--u)); margin-left: calc(-1.5 * var(--u)); border-radius: calc(1 * var(--u)); background: var(--paper); box-shadow: 0 0 0 calc(1 * var(--u)) var(--ink); }
+/* Debug attitude tags: centred on the point Lua projects from the rings, no motion so they stay on the car. */
+.pose { position: fixed; display: flex; flex-direction: column; align-items: center; gap: calc(4 * var(--u)); transform: translate(-50%, -50%); pointer-events: none; }
+.pose .value { min-width: calc(58 * var(--u)); }
+.rate { font: calc(13 * var(--u))/1 var(--data); color: var(--paper); text-shadow: var(--legible); font-variant-numeric: tabular-nums; white-space: nowrap; }
 @keyframes arrive { from { transform: translateY(calc(4 * var(--u))); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gauge { animation: none; } }

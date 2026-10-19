@@ -1,5 +1,5 @@
 import {describe,expect,test} from 'bun:test';
-import {blank,read,readWords,levelAt,cells} from './view';
+import {blank,read,readWords,levelAt,cells,readAttitude,signed} from './view';
 
 describe('read',()=>{
  test('accepts a full snapshot',()=>{
@@ -53,4 +53,34 @@ test('words fall back when missing or too long',()=>{
  expect(w.label).toBe('Kaltgas');
  expect(w.locked).toBe('Refilling');
  expect(w.grip).toBe('Grip');
+});
+
+describe('readAttitude',()=>{
+ test('takes both tags',()=>{
+  const a=readAttitude({action:'thrusters:attitude',data:{visible:true,roll:{on:true,x:.62,y:.44,deg:-12.4,rate:180},yaw:{on:true,x:.5,y:.3,deg:274,delta:8.2,rate:-40}}})!;
+  expect(a.visible).toBe(true);
+  expect(a.roll).toEqual({on:true,x:.62,y:.44,deg:-12.4,rate:180});
+  expect(a.yaw.delta).toBe(8.2);
+ });
+ test('hides a tag that is off screen or malformed',()=>{
+  const a=readAttitude({action:'thrusters:attitude',data:{visible:true,roll:{on:false,x:.5,y:.5,deg:0},yaw:{on:true,x:'mid',y:.5,deg:10}}})!;
+  expect(a.roll.on).toBe(false);
+  expect(a.yaw.on).toBe(false);
+ });
+ test('rejects out of range angles, other actions and a non-boolean visible',()=>{
+  expect(readAttitude({action:'thrusters:attitude',data:{visible:true,roll:{on:true,x:.5,y:.5,deg:400}}})!.roll.on).toBe(false);
+  expect(readAttitude({action:'thrusters:state',data:{visible:true}})).toBeNull();
+  expect(readAttitude({action:'thrusters:attitude',data:{visible:1}})).toBeNull();
+ });
+ test('hidden is hidden',()=>{
+  expect(readAttitude({action:'thrusters:attitude',data:{visible:false}})!.visible).toBe(false);
+ });
+});
+
+describe('signed',()=>{
+ test('whole degrees with a real minus',()=>{
+  expect(signed(12.4)).toBe('+12°');
+  expect(signed(-3.6)).toBe('−4°');
+  expect(signed(0.3)).toBe('0°');
+ });
 });

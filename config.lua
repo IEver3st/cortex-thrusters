@@ -77,20 +77,57 @@ Config.tank = {
     low = 25,            -- percent of capacity
 }
 
--- Physics. Accelerations are m/s^2 and mass independent, so every vehicle
--- feels the same; speeds are m/s.
+-- Physics. Every effect is a push from a nozzle (or a grip fan) at the spot
+-- it sits on the car, handed to the game's physics engine: nothing sets the
+-- car's speed, spin or position. Thrust is in m/s^2 and scales with the
+-- vehicle's mass, so every vehicle gets the same push; how it turns comes
+-- from its own shape and weight. Speeds are m/s.
+--
+-- The RCS throttles all twelve nozzles every frame to give the push and turn
+-- that is wanted (lift, boost, levelling, tricks, recovery), within what each
+-- nozzle can do. Gas follows the thrust actually used.
+Config.rcs = {
+    -- Strongest push of one nozzle, m/s^2. Four lift nozzles at 15 give 60,
+    -- about six times gravity, so any car launches hard.
+    thrust = { lift = 15.0, boost = 3.0, corner = 6.0 },
+    burst = 2.5,    -- hops, tricks and recovery dump gas: nozzles push this many times harder
+    gas = 0.53,     -- cold gas per second for each m/s^2 of thrust (hovering uses about 6 a second)
+    response = 8.0, -- how quickly the RCS catches up with a wanted turn rate, per second
+    damping = 2.5,  -- in flight, how firmly it calms a tumble (roll and pitch); 0 = off. Yields to air control
+}
 Config.lift = {
-    accel = 15.0,  -- along the car's up; gravity is 9.8, so upright it climbs at about 5
-    hop = 5.5,     -- instant upward speed on press
+    -- Holding lift gives just enough thrust to carry the car's weight and
+    -- climb at `climb`, whatever the vehicle weighs; it never rockets up.
+    climb = 8.0,    -- m/s while lift is held; it launches at full thrust until it gets there
+    ceiling = 15.0, -- metres above the ground where it stops climbing and hovers; false = no limit
+    brake = 6.0,    -- how hard it slows into that hover height, m/s^2
+    response = 6.0, -- how firmly it holds that climb rate, per second
+    trim = 8.0,     -- how quickly it adds thrust when the car climbs slower than `climb` (kept between presses)
+    accel = 60.0,   -- the most the lift nozzles give while held, m/s^2 (gravity is 9.8)
+    hop = 5.5,      -- upward speed a tap adds, as a burst on the lift nozzles
+    hopTime = 0.25, -- seconds the burst lasts
     hopCost = 10,
-    drain = 24,    -- while held
-    maxRise = 12.0,
-    level = 2.5,   -- how firmly the lift nozzles hold the car level while hovering
+    level = 2.5,    -- how firmly the lift nozzles hold the car level while hovering
 }
 Config.boost = {
     accel = 10.0,
     maxSpeed = 70.0, -- no boost past this forward speed (about 250 km/h)
-    drain = 15,
+}
+-- Recovery: tap lift while the car lies on its roof or side and the nozzles
+-- right it. On its side, the nozzles facing the ground push it up while the
+-- lift nozzles roll it upright. On the roof nothing faces the ground, so the
+-- lift nozzles rock it in time with its own sway until it tips onto a side.
+Config.recovery = {
+    enabled = true,
+    auto = false,     -- or seconds stuck before it starts without a key press
+    tilt = 60,        -- degrees from upright that count as stuck
+    maxSpeed = 3.0,   -- m/s; only when nearly stopped
+    seconds = 6.0,    -- gives up after this
+    lift = 1.15,      -- push away from the ground, times the car's weight
+    align = 3.0,      -- how firmly it turns upright
+    turnRate = 160,   -- fastest it turns upright, degrees per second
+    turnAccel = 500,  -- how quickly it reaches that rate, degrees per second^2
+    rock = 14.0,      -- on the roof: how hard it rocks, rad/s^2
 }
 -- From the ground a trick first lifts the car on all four lift nozzles,
 -- then turns it once while it is still climbing, high enough to clear the
@@ -99,7 +136,7 @@ Config.boost = {
 Config.tricks = {
     cost = 20,
     cooldown = 0.4,
-    rise = 0.35,      -- seconds the lift nozzles push before the car starts to turn
+    rise = 0.35,      -- seconds the lift nozzles burst before the car starts to turn
     -- Seconds for one full turn, per axis: x flips, y rolls, z spins.
     duration = { x = 1.6, y = 1.5, z = 1.3 },
     finish = 0.25,    -- seconds of airtime left after the turn
@@ -107,16 +144,19 @@ Config.tricks = {
     maxHop = 14.0,    -- m/s; caps how high very large vehicles are thrown
     maxDuration = 2.4,
     settle = 0.6,     -- seconds of levelling after a trick
+    hold = 30.0,      -- how firmly a trick keeps turning about its own axis (no sideways twist)
+    overtime = 3.0,   -- safety limit: seconds a slow car may keep turning past `duration` to finish the turn
 }
 -- Wall grip runs on underbody fans, not cold gas: it never uses the tank.
--- It works like heavy suction on the surface under the tyres: weight is
--- cancelled, the car is pulled flat against it and doesn't bounce off, and
--- parked (no throttle, nearly stopped) it holds still. Driving into a steeper
+-- Four fans under the corners pull the car onto the surface under the tyres;
+-- pulling harder on one side lays it flat on that surface. Its weight is
+-- carried, it doesn't bounce off, and parked (no throttle, nearly stopped)
+-- it holds still. Driving into a steeper
 -- surface the nose touches (a gutter ramp, the foot of a wall) carries the
 -- car onto it; the speed heading into it is turned up it, never added to.
 -- With Config.debug the probes are drawn: green under the axles, blue ahead.
 Config.grip = {
-    press = 13.0,       -- pull into the surface, m/s^2
+    press = 13.0,       -- fan pull into the surface, m/s^2 (all four together)
     hold = 8.0,         -- how hard it holds a parked car still, m/s^2
     reach = 1.6,        -- metres below the tyres a surface is still held
     align = 5.0,        -- how firmly the car follows the surface
@@ -129,25 +169,22 @@ Config.grip = {
     release = 0.6,      -- seconds grip lets go after a hop
 }
 
--- Landing assist: after a jump the car levels itself to the ground below and,
--- close to touchdown, the lift nozzles brake the fall to a gentle sink rate.
--- Players can turn it off under Cortex settings > Thrusters.
+-- Landing assist: in flight the RCS calms a tumble (Config.rcs.damping). Close
+-- to touchdown it probes the ground under all four tyres, levels the car to
+-- that plane so the wheels land together, and the lift nozzles brake the
+-- corner sinking fastest to a gentle sink rate. Players can turn it off
+-- under Cortex settings > Thrusters.
 Config.landing = {
     enabled = true,
     minAir = 0.35,    -- seconds in the air before it helps (ignores bumps)
     lookahead = 1.3,  -- starts this many seconds before touchdown
     safeSpeed = 3.5,  -- m/s sink rate it aims to land at
-    maxAccel = 24.0,  -- strongest braking, m/s^2
+    maxAccel = 24.0,  -- strongest lift thrust while braking, m/s^2 (gravity takes 9.8 of it)
     align = 2.0,      -- how firmly it levels the car
     turnRate = 80,    -- fastest it turns the car while levelling, degrees per second
     turnAccel = 220,  -- how quickly it reaches that rate, degrees per second^2
-    drain = 18,       -- cold gas per second while braking
     probe = 40.0,     -- metres it looks down for the ground
 }
-
--- Angular velocity space of SET_ENTITY_ANGULAR_VELOCITY. 'world' is expected;
--- if tricks turn about the wrong axis when the car is not level, try 'local'.
-Config.angularSpace = 'world'
 
 -- Effects ----------------------------------------------------------------------
 
@@ -162,6 +199,10 @@ Config.angularSpace = 'world'
 --   /thrusters_layer lift 1 core ent_sht_steam 1.2   swap a layer's effect live (groups lift|boost|corner|ground)
 Config.fx = {
     range = 150.0, -- metres; other players' jets beyond this are not drawn
+    -- Seconds before a jet that keeps firing gets a fresh emitter. The
+    -- base-game leak effects below run dry after several seconds on their
+    -- own; false = never renew.
+    renew = 3.0,
     -- Lift: straight-down jets only. Rising smoke (the boost's cloud) would
     -- billow up over the car; the jets carry the gas down and away.
     lift = {
@@ -182,7 +223,7 @@ Config.fx = {
     -- trail as the boost. `each` = one source under each lift nozzle (`slots`
     -- pick which layer goes where), false = one under the car; false = off.
     ground = {
-        height = 3.0,
+        height = 16.0, -- above Config.lift.ceiling, so a hover keeps its cloud
         each = true,
         layers = {
             { asset = 'scr_recartheft', name = 'scr_wheel_burnout', scale = 1.4, slots = { 2, 3 } },
@@ -218,4 +259,4 @@ Config.hud = {
     width = 176,
 }
 
-Config.debug = false -- true: /thrusters_debug, /thrusters_fx, /thrusters_rot, /thrusters_layer and F8 traces.
+Config.debug = false -- true: /thrusters_debug, /thrusters_attitude, /thrusters_fx, /thrusters_rot, /thrusters_layer and F8 traces.

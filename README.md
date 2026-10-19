@@ -1,6 +1,8 @@
 # Cortex Thrusters 1.0.0
 
-A cold gas thruster kit for cars, motorbikes and quads. Once a vehicle has the kit, its driver can hop and hover on four lift nozzles, boost forward on the rear ones, flip, roll and spin in the air, and switch on wall grip to drive up ramps and walls. One tank feeds every nozzle and refills by itself. Landing assist levels the car after a jump and softens the touchdown. Other players see and hear the jets.
+A cold gas thruster kit for cars, motorbikes and quads. Once a vehicle has the kit, its driver can hop and hover on four lift nozzles, boost forward on the rear ones, flip, roll and spin in the air, and switch on wall grip to drive up ramps and walls. One tank feeds every nozzle and refills by itself. Landing assist steadies the car in the air, levels it to the ground under all four wheels and softens the touchdown, and a tap of lift rights a car stuck on its roof or side. Other players see and hear the jets.
+
+Everything is physics: each nozzle pushes the car from where it sits, and the game's physics engine moves it. Nothing sets the car's speed, spin or position.
 
 ## Requirements
 
@@ -63,7 +65,8 @@ Take the driver's seat of a vehicle with a kit. A controls hint (Cortex Lib, bot
 
 | Action | Keyboard | Controller |
 | --- | --- | --- |
-| Hop / hover | Tap / hold X | D-pad left |
+| Hop / hover (holding climbs fast, then hovers 15 m up) | Tap / hold X | D-pad left |
+| Right a stuck car | Tap X on the roof or side | D-pad left |
 | Boost | Hold Left Shift | Left stick click |
 | Wall grip on / off | G | D-pad up |
 | Front / back flip | Hold Left Ctrl, then W / S | Hold D-pad down, then RT / LT |
@@ -72,7 +75,7 @@ Take the driver's seat of a vehicle with a kit. A controls hint (Cortex Lib, bot
 
 A spin turns right; steer left as you press it to spin left. Players rebind every key under Settings > Key Bindings > FiveM. `Config.keys` sets the defaults for players who never set their own.
 
-Lift, boost, tricks and landing assist all run on cold gas. The tank starts refilling after 2.5 seconds of rest and goes from empty to full in about 22 seconds, slower with the engine off. Running it dry shuts the thrusters off until it is back to 30 percent. Wall grip runs on underbody fans, so it never uses gas; after you switch it off it needs 4 seconds before it can go on again. Hop off a wall before a trick.
+Lift, boost, tricks, recovery and landing assist all run on cold gas, and use it as fast as the nozzles actually push: hovering costs more than a gentle correction. The tank starts refilling after 2.5 seconds of rest and goes from empty to full in about 22 seconds, slower with the engine off. Running it dry shuts the thrusters off until it is back to 30 percent. Wall grip runs on underbody fans, so it never uses gas; after you switch it off it needs 4 seconds before it can go on again. Hop off a wall before a trick.
 
 The thrusters stop working when the vehicle is wrecked or mostly under water.
 
@@ -101,7 +104,8 @@ Everything is in `config.lua`, with a comment on every value:
 - `Config.blockedClasses`, `Config.types`, `Config.blockedModels`: which vehicles take a kit. By default cars, motorbikes, quads and amphibious cars do; bicycles, boats, helicopters, planes and trains never do.
 - `Config.layouts`: nozzles are placed automatically from each model's size, wheels and exhausts. Correct them per model here.
 - `Config.keys`, `Config.legend`: default keys and the controls hint.
-- `Config.tank`, `Config.lift`, `Config.boost`, `Config.tricks`, `Config.grip`, `Config.landing`: the physics. Accelerations are in m/s² and do not depend on mass, so every vehicle feels the same.
+- `Config.rcs`: how hard each nozzle can push, the burst for hops, tricks and recovery, gas per unit of thrust, and how firmly the RCS steadies the car in flight.
+- `Config.tank`, `Config.lift`, `Config.boost`, `Config.recovery`, `Config.tricks`, `Config.grip`, `Config.landing`: the physics. Thrust is in m/s² and scales with each vehicle's mass, so every vehicle gets the same push; how it turns depends on its own shape and weight.
 - `Config.fx`, `Config.sounds`: base-game particles, the jet glow and sounds, and how far other players' jets are drawn and heard.
 - `Config.hud`: the gauge's default position and width.
 

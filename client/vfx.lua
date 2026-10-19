@@ -121,7 +121,18 @@ local function start(entry, vehicle, layout, index)
         end
     end
     entry.handles[index] = handles
+    entry.started[index] = GetGameTimer()
     return true
+end
+
+-- Base-game leak effects (a shot steam pipe, a shot extinguisher) run dry
+-- after several seconds even when looped. A nozzle that keeps firing gets
+-- a fresh emitter every Config.fx.renew seconds; the old one stops gently,
+-- so its last puff drifts off instead of cutting out.
+local function renew(entry, vehicle, layout, index)
+    local old = entry.handles[index]
+    if not start(entry, vehicle, layout, index) then return end
+    for _, handle in pairs(old or {}) do StopParticleFxLooped(handle, false) end
 end
 
 local function stop(entry, index)
@@ -129,6 +140,7 @@ local function stop(entry, index)
     if not handles then return end
     for _, handle in pairs(handles) do StopParticleFxLooped(handle, false) end
     entry.handles[index] = nil
+    entry.started[index] = nil
 end
 
 local function stopGround(entry)
@@ -194,7 +206,8 @@ local function moveGround(vehicle, entry, def, layout)
     end
 end
 
--- Ground smoke and core glow for every car lifting or boosting near enough to see.
+-- Ground smoke, core glow and jet renewal for every car firing near enough to see.
+local JETS = L.MASK_LIFT | L.MASK_BOOST | L.MASK_CORNER
 local function glow()
     if glowing then return end
     glowing = true
@@ -207,12 +220,18 @@ local function glow()
             local tick = now >= nextGround
             if tick then nextGround = now + 100 end
             local def = C.fx.ground
+            local renewAfter = (tonumber(C.fx.renew) or 0) * 1000
             for vehicle, entry in pairs(live) do
                 local lifting = entry.mask & L.MASK_LIFT ~= 0
                 local boosting = entry.mask & L.MASK_BOOST ~= 0
-                if (lifting or boosting) and DoesEntityExist(vehicle) then
+                if entry.mask & JETS ~= 0 and DoesEntityExist(vehicle) then
                     any = true
                     local layout = F.layout(vehicle)
+                    if tick and renewAfter > 0 then
+                        for index, started in pairs(entry.started) do
+                            if now - started >= renewAfter then renew(entry, vehicle, layout, index) end
+                        end
+                    end
                     local light = C.fx.light
                     if light and #(GetEntityCoords(vehicle) - here) <= light.distance then
                         if lifting then lamp(light, GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 0.0, -layout.ground - 0.4)) end
@@ -258,7 +277,7 @@ function F.set(vehicle, mask, audible)
     local entry = live[vehicle]
     if not entry then
         if mask == 0 then return end
-        entry = { mask = 0, handles = {} }
+        entry = { mask = 0, handles = {}, started = {} }
         live[vehicle] = entry
     end
     local old = entry.mask
@@ -280,7 +299,7 @@ function F.set(vehicle, mask, audible)
         if mask & L.GRIP == 0 and old & L.GRIP ~= 0 then sound(vehicle, 'gripOff') end
     end
     entry.mask = mask
-    if mask & (L.MASK_LIFT | L.MASK_BOOST) ~= 0 then glow() end
+    if mask & JETS ~= 0 then glow() end
     if missing then pending[vehicle] = mask; retry() end
     if mask & L.MASK_LIFT == 0 then stopGround(entry) end
     if mask == 0 and not next(entry.handles) then live[vehicle] = nil end
