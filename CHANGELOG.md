@@ -13,7 +13,7 @@
 - During a trick the trick owns the nozzles: held lift only holds the height while the lift nozzles face down, a tap of lift doesn't hop, and levelling waits until the turn is done or the car lands, so a hover-flip no longer gets pulled back halfway. A spin's leftover turn is stopped as it levels.
 - Flips, rolls and spins count how far the car has really turned and keep turning until the full turn is done (`Config.tricks.overtime` is only a safety limit), braking for what that car showed it can do, so a heavy car no longer stops halfway round.
 - Flips and rolls no longer throw the car back into the air as they finish. Braking now allows for the nozzles' reaction time, so the turn no longer overshoots and corrects back. It is also spread over the last half turn, so the lift nozzles that stop the turn mostly push while the car is upside down. A flip takes about 0.25 s longer.
-- Cold gas lasts three times as long for the same thrust (`Config.rcs.gas` 0.53). With the gentler lift a full tank hovers for about 33 seconds (about 8 before).
+- Cold gas lasts three times as long for the same thrust (`Config.rcs.gas` 0.53). A full tank hovers for about 33 seconds (about 8 before).
 - Hops, trick rises and trick turns are nozzle bursts (`Config.rcs.burst`, `Config.lift.hopTime`) instead of set speeds.
 - Wall grip fans pull at the four corners; more pull on one side lays the car flat on the surface.
 
