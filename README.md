@@ -1,12 +1,16 @@
 # Cortex Thrusters 1.0.0
 
+[![Cortex Thrusters](https://raw.githubusercontent.com/IEver3st/gsd-tebex-media/main/heroes/thrusters.jpg)](https://gsdmods.com/scripts/cortex-thrusters?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters)
+
+**[Product page](https://gsdmods.com/scripts/cortex-thrusters?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters)** · [All Cortex scripts](https://gsdmods.com/scripts?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Docs](https://gsdmods.com/docs?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Discord](https://discord.com/invite/gsdmods) · [Download](https://github.com/IEver3st/cortex-thrusters/releases/latest)
+
 A cold gas thruster kit for cars, motorbikes and quads. Once a vehicle has the kit, its driver can hop and hover on four lift nozzles, boost forward on the rear ones, flip, roll and spin in the air, and switch on wall grip to drive up ramps and walls. One tank feeds every nozzle and refills by itself. Landing assist steadies the car in the air, levels it to the ground under all four wheels and softens the touchdown, and a tap of lift rights a car stuck on its roof or side. Other players see and hear the jets.
 
 Everything is physics: each nozzle pushes the car from where it sits, and the game's physics engine moves it. Nothing sets the car's speed, spin or position.
 
 ## Requirements
 
-- [Cortex Lib](https://gsd-modifications.tebex.io/package/7696933) 3.3.1 or newer
+- [Cortex Lib](https://gsdmods.com/scripts/cortex-library?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) 3.3.1 or newer
 - OneSync
 - Optional, for a kit item: Qbox, QBCore or ESX, with ox_inventory or the framework's own inventory
 
@@ -150,3 +154,21 @@ Replace the folder, then copy back your `config.lua` and any files you changed i
 Ask in the [GSD Modifications Discord](https://discord.com/invite/gsdmods). Include your server artifact version, framework and the console or F8 error.
 
 License: free to use and modify on servers you own or run, including commercial ones. Do not sell, resell or redistribute it; share the Tebex link instead.
+
+## More from Cortex
+
+[![Cortex PolCam following a car from the police helicopter camera](https://raw.githubusercontent.com/IEver3st/gsd-tebex-media/main/forum/polcam/tracking-v2.webp)](https://gsdmods.com/scripts/cortex-polcam?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters)
+
+Cortex Thrusters is free and stays free. The paid Cortex scripts run on the same Cortex Library and pay for the free ones.
+
+| Police | Interface | Driving and freeroam |
+| --- | --- | --- |
+| [PolCam](https://gsdmods.com/scripts/cortex-polcam?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): FLIR helicopter camera with target tracking | [HUD](https://gsdmods.com/scripts/cortex-hud?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): vitals, vehicle, aircraft, weapon and radar | [Handling](https://gsdmods.com/scripts/cortex-handling?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): tune handling from the driver's seat |
+| [Arges](https://gsdmods.com/scripts/cortex-arges?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): remote spotlight for patrol cars | [Chat](https://gsdmods.com/scripts/cortex-chat?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): chat replacement with roleplay actions | [Rewind](https://gsdmods.com/scripts/cortex-rewind?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): rewind a missed corner or a bad landing |
+| [Radio](https://gsdmods.com/scripts/cortex-radio?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): handheld radio for pma-voice | [Spawn](https://gsdmods.com/scripts/cortex-spawn?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): pick your spawn from a live view of the city | [Emote Studio](https://gsdmods.com/scripts/cortex-emote-studio?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): preview, fit and pair emotes |
+| [Flashlight](https://gsdmods.com/scripts/cortex-flashlight?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): weapon, vest and UV forensic torches | [Multicharacter](https://gsdmods.com/scripts/cortex-multicharacter?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): character selection and creation for Qbox | |
+| [Binoculars](https://gsdmods.com/scripts/cortex-binoculars?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): zoom, rangefinder, night and thermal vision | [Loading Screen](https://gsdmods.com/scripts/cortex-loading-screen?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): cinematic arrival screen | |
+
+**[Browse every Cortex script](https://gsdmods.com/scripts?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters)** · [LEO Kit](https://gsdmods.com/scripts/cortex-leo-kit?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): PolCam, Arges, Binoculars and Flashlight in one purchase · [All-Access](https://gsdmods.com/scripts/cortex-all-access?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters): every paid script for one monthly price
+
+Also free: [Admin](https://gsdmods.com/scripts/cortex-admin?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Drone](https://gsdmods.com/scripts/cortex-drone?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Drone Races](https://gsdmods.com/scripts/cortex-drone-races?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Gunsmith](https://gsdmods.com/scripts/cortex-gunsmith?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Megaphone](https://gsdmods.com/scripts/cortex-megaphone?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Minigames](https://gsdmods.com/scripts/cortex-minigames?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters) · [Library](https://gsdmods.com/scripts/cortex-library?utm_source=github&utm_medium=readme&utm_campaign=cortex-thrusters)
